@@ -1724,7 +1724,7 @@ function CustomCursor() {
   return (
     <div
       ref={cursorRef}
-      className="fixed top-0 left-0 z-[10000] size-4 rounded-full mix-blend-difference bg-white pointer-events-none hidden sm:block will-change-transform"
+      className="fixed top-0 left-0 z-[99999] size-5 rounded-full bg-zinc-950/20 dark:bg-white/20 backdrop-blur-[1.5px] border border-zinc-900/10 dark:border-white/10 pointer-events-none hidden sm:block will-change-transform"
     />
   )
 }
