@@ -1571,6 +1571,13 @@ function App() {
   const [isWritingHovered, setIsWritingHovered] = useState(false)
   const [writingListHeight, setWritingListHeight] = useState(0)
   const [presence, setPresence] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 900)
+    return () => clearTimeout(timer)
+  }, [])
+
   const writingOpenTimeoutRef = useRef(null)
   const writingCloseTimeoutRef = useRef(null)
   const writingListInnerRef = useRef(null)
@@ -2119,6 +2126,20 @@ function App() {
         </span>
         <SunIcon />
       </button>
+
+      <div
+        className={joinClasses(
+          'fixed inset-0 z-50 flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          isLoading ? 'opacity-100' : 'pointer-events-none opacity-0 scale-105',
+          isSunMode
+            ? 'bg-[#090d1c] text-sky-200'
+            : 'bg-zinc-50 text-zinc-400 dark:bg-[#111113] dark:text-zinc-500'
+        )}
+      >
+        <span className="font-serif italic text-lg tracking-widest animate-pulse">
+          ens.sh
+        </span>
+      </div>
     </>
   )
 }
