@@ -1770,13 +1770,9 @@ function App() {
   const lightMapImageSrc = `/api/map?location=${encodeURIComponent(site.location)}&lat=${site.map.lat}&lon=${site.map.lon}&theme=light`
   const darkMapImageSrc = `/api/map?location=${encodeURIComponent(site.location)}&lat=${site.map.lat}&lon=${site.map.lon}&theme=dark`
   const lanyardApiHref = `https://api.lanyard.rest/v1/users/${site.lanyard.discordId}`
-  const profilePhotoSrc =
-    getDiscordAvatarUrl(presence?.discord_user) ?? site.fallbackPhoto
-  const faviconSrc =
-    getDiscordAvatarUrl(presence?.discord_user, 'static') ?? site.fallbackPhoto
-  const profilePhotoAlt = presence?.discord_user?.display_name
-    ? `${presence.discord_user.display_name} profile portrait`
-    : site.fallbackPhotoAlt
+  const profilePhotoSrc = `https://github.com/${site.github.handle}.png`
+  const faviconSrc = `https://github.com/${site.github.handle}.png`
+  const profilePhotoAlt = `${site.github.handle} GitHub portrait`
 
   const clearWritingHoverTimers = () => {
     clearTimeout(writingOpenTimeoutRef.current)
