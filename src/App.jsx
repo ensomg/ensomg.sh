@@ -1985,7 +1985,7 @@ function App() {
                   }`}
                 >
                   <li className="py-3 text-center">
-                    <p className={joinClasses('font-serif italic text-sm', subtleTextClass)}>
+                    <p className={joinClasses('font-serif italic text-sm', isSunMode ? 'text-sky-200/60' : 'text-zinc-500 dark:text-zinc-400')}>
                       Currently nothing.
                     </p>
                   </li>
