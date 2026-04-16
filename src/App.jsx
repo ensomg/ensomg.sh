@@ -612,7 +612,7 @@ function DiscordRpcCard({ activity, isSunMode }) {
   )
 }
 
-function ActivityLine({ presence, linkClass, isSunMode }) {
+function ActivityLine({ presence, linkClass, isSunMode, onHoverChange }) {
   const [isHovered, setIsHovered] = useState(false)
   const [playerHeight, setPlayerHeight] = useState(0)
   const openTimeoutRef = useRef(null)
@@ -632,6 +632,7 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
     clearTimeout(closeTimeoutRef.current)
     openTimeoutRef.current = setTimeout(() => {
       setIsHovered(true)
+      onHoverChange?.(true)
     }, 120)
   }
 
@@ -639,6 +640,7 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
     clearTimeout(openTimeoutRef.current)
     closeTimeoutRef.current = setTimeout(() => {
       setIsHovered(false)
+      onHoverChange?.(false)
     }, 180)
   }
 
@@ -1770,6 +1772,7 @@ function App() {
   const [writingListHeight, setWritingListHeight] = useState(0)
   const [presence, setPresence] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [expandedRow, setExpandedRow] = useState(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 900)
@@ -1795,27 +1798,22 @@ function App() {
   const bubbleClass = joinClasses(
     'bubble-enter w-fit max-w-[calc(100vw-4.75rem)] overflow-hidden rounded-[18px] text-[13px] transition-[background-color,color,box-shadow,border-color,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:-translate-y-0.5 sm:max-w-[450px] sm:rounded-[20px] sm:text-sm',
     isSunMode
-      ? 'bg-[rgba(9,13,28,0.82)] text-slate-300 shadow-[0_0_0_1px_rgba(96,165,250,0.12),0_16px_44px_rgba(0,0,0,0.35)] backdrop-blur-[2px] motion-safe:hover:shadow-[0_0_0_1px_rgba(96,165,250,0.16),0_22px_54px_rgba(0,0,0,0.38)]'
-      : 'bg-zinc-100 text-zinc-700 motion-safe:hover:shadow-[0_12px_28px_rgba(24,24,27,0.08)] dark:bg-zinc-900 dark:text-zinc-400 dark:shadow-none dark:motion-safe:hover:shadow-[0_18px_40px_rgba(0,0,0,0.24)]',
+      ? 'border border-sky-400/15 bg-sky-500/[0.04] text-sky-200'
+      : 'bg-zinc-100 text-zinc-900 shadow-sm dark:bg-[#111113] dark:text-zinc-300',
+  )
+  const avatarClass = joinClasses(
+    'bubble-enter size-10 shrink-0 select-none rounded-full object-cover transition-[opacity,transform] sm:size-12',
+    isSunMode && 'opacity-60 grayscale',
   )
   const linkClass = joinClasses(
     'underline underline-offset-[0.18em] transition-[color,text-decoration-color] duration-500',
     isSunMode
       ? 'text-sky-200 decoration-sky-500/45 hover:text-sky-50 hover:decoration-sky-200'
-      : 'decoration-zinc-400 hover:decoration-zinc-600 dark:decoration-zinc-500/80 dark:hover:decoration-zinc-400',
+      : 'text-zinc-900 decoration-zinc-400 hover:decoration-zinc-600 dark:text-white dark:decoration-zinc-500/80 dark:hover:decoration-zinc-400',
   )
-  const strongTextClass = isSunMode
-    ? 'text-slate-50'
-    : 'text-zinc-900 dark:text-white'
-  const dividerClass = isSunMode
-    ? 'border-sky-400/12'
-    : 'border-zinc-200 dark:border-zinc-800'
-  const avatarClass = joinClasses(
-    'size-7 rounded-full object-cover transition-[filter,box-shadow,border-color,transform] duration-700 motion-safe:hover:-translate-y-0.5 sm:size-8',
-    isSunMode
-      ? 'grayscale-0 saturate-110 contrast-105 shadow-[0_0_0_1px_rgba(125,211,252,0.16),0_0_18px_rgba(37,99,235,0.14)]'
-      : 'grayscale',
-  )
+  const strongTextClass = isSunMode ? 'text-slate-50' : 'text-zinc-900 dark:text-white'
+  const accentIconClass = isSunMode ? 'text-sky-300' : ''
+  const dividerClass = isSunMode ? 'border-sky-400/12' : 'border-zinc-200 dark:border-zinc-800'
   const mapLightClass = joinClasses(
     'absolute inset-0 h-full w-full scale-125 object-cover transition-[opacity,filter] duration-700',
     isSunMode
@@ -1834,9 +1832,25 @@ function App() {
       ? 'border-sky-200/70 grayscale-0 saturate-110 contrast-105 shadow-[0_0_0_1px_rgba(191,219,254,0.18),0_0_30px_rgba(56,189,248,0.18)]'
       : 'border-white grayscale dark:border-zinc-900',
   )
-  const accentIconClass = isSunMode ? 'text-sky-300' : ''
   const pingClass = isSunMode ? 'bg-sky-400/45' : 'bg-lime-500/70'
   const rowClass = 'row-enter flex items-end gap-1.5 sm:gap-2'
+  
+  const getSubRowClass = (rowIndex) => {
+    // If a row higher up in the list is expanded, fade out this lower row
+    if (expandedRow !== null && rowIndex > expandedRow) {
+      return joinClasses(
+        rowClass,
+        'opacity-0 scale-[0.98] !h-0 !my-0 !py-0 overflow-hidden pointer-events-none',
+        'transition-all duration-[800ms] ease-[cubic-bezier(0.23,1,0.32,1)]'
+      )
+    }
+    return joinClasses(
+      rowClass,
+      'opacity-100 scale-100 h-auto overflow-visible',
+      'transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)]'
+    )
+  }
+
   const stackClass = 'space-y-0.5 sm:space-y-1'
   const bubblePaddingClass = 'px-3.5 py-2 sm:px-4 sm:py-2.5'
   const bubbleSidePaddingClass = 'px-3.5 sm:px-4'
@@ -1857,6 +1871,7 @@ function App() {
     clearTimeout(writingCloseTimeoutRef.current)
     writingOpenTimeoutRef.current = setTimeout(() => {
       setIsWritingHovered(true)
+      if (!isWritingPinned) setExpandedRow(2)
     }, 320)
   }
 
@@ -1864,6 +1879,7 @@ function App() {
     clearTimeout(writingOpenTimeoutRef.current)
     writingCloseTimeoutRef.current = setTimeout(() => {
       setIsWritingHovered(false)
+      if (!isWritingPinned) setExpandedRow(null)
     }, 420)
   }
 
@@ -2099,7 +2115,7 @@ function App() {
           </div>
         </li>
 
-        <li className={rowClass} style={rowDelay(420)}>
+        <li className={getSubRowClass(1)} style={rowDelay(420)}>
           <img
             src={profilePhotoSrc}
             alt=""
@@ -2112,12 +2128,13 @@ function App() {
                 presence={presence}
                 linkClass={linkClass}
                 isSunMode={isSunMode}
+                onHoverChange={(hovered) => setExpandedRow(hovered ? 1 : null)}
               />
             </div>
           </div>
         </li>
 
-        <li className={rowClass} style={rowDelay(920)}>
+        <li className={getSubRowClass(2)} style={rowDelay(920)}>
           <img
             src={profilePhotoSrc}
             alt=""
@@ -2141,7 +2158,14 @@ function App() {
                   <button
                     type="button"
                     title={isWritingPinned ? 'Hide the list' : 'Show the list'}
-                    onClick={() => setIsWritingPinned((open) => !open)}
+                    onClick={() => {
+                        setIsWritingPinned((open) => {
+                            const next = !open
+                            if (next) setExpandedRow(2)
+                            else setExpandedRow(isWritingHovered ? 2 : null)
+                            return next
+                        })
+                    }}
                     className={joinClasses(
                       'group -my-3 -mr-3 -ml-6 inline h-fit cursor-pointer px-5 focus-visible:outline-none',
                       isSunMode ? 'text-sky-200/60' : 'text-zinc-500 dark:text-zinc-400',
@@ -2196,7 +2220,7 @@ function App() {
           </div>
         </li>
 
-        <li className={rowClass} style={rowDelay(1480)}>
+        <li className={getSubRowClass(3)} style={rowDelay(1480)}>
           <img
             src={profilePhotoSrc}
             alt=""
@@ -2253,7 +2277,7 @@ function App() {
           </div>
         </li>
 
-        <li className={rowClass} style={rowDelay(2100)}>
+        <li className={getSubRowClass(4)} style={rowDelay(2100)}>
           <img
             src={profilePhotoSrc}
             alt=""
