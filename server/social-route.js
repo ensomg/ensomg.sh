@@ -95,10 +95,20 @@ async function getGithubStats(handle) {
     return cachedStats
   }
 
-  const [profile, events] = await Promise.all([
-    fetchJson(`https://api.github.com/users/${handle}`),
-    fetchJson(`https://api.github.com/users/${handle}/events/public?per_page=100`),
-  ])
+  let profile;
+  try {
+    profile = await fetchJson(`https://api.github.com/users/${handle}`)
+  } catch (error) {
+    throw new Error('Unable to fetch GitHub profile stats')
+  }
+
+  let events = [];
+  try {
+    events = await fetchJson(`https://api.github.com/users/${handle}/events/public?per_page=100`)
+  } catch (error) {
+    // Gracefully handle rate limits for commits
+  }
+
   const recentCommits = Array.isArray(events)
     ? events.reduce((total, event) => {
         if (event?.type !== 'PushEvent') {
@@ -108,6 +118,7 @@ async function getGithubStats(handle) {
         return total + (event.payload?.commits?.length ?? 0)
       }, 0)
     : 0
+
   const stats = {
     platform: 'github',
     handle,
@@ -130,22 +141,14 @@ async function getXStats(handle) {
     return cachedStats
   }
 
-  const profileMarkdown = await fetchText(`https://r.jina.ai/http://x.com/${handle}`)
-  const nameMatch = profileMarkdown.match(/^#\s+(.+?)\s+\(@/m)
-  const postsMatch = profileMarkdown.match(/^\s*([\d.,KMB]+)\s+posts\s*$/im)
-  const followingMatch = profileMarkdown.match(/\[([\d.,KMB]+)\s+Following\]\(/i)
-  const followersMatch = profileMarkdown.match(/\[([\d.,KMB]+)\s+Followers\]\(/i)
+  const profile = await fetchJson(`https://api.vxtwitter.com/${handle}`)
   const stats = {
     platform: 'x',
     handle,
-    name: nameMatch?.[1]?.trim() || handle,
-    posts: parseCompactNumber(postsMatch?.[1]),
-    followers: parseCompactNumber(followersMatch?.[1]),
-    following: parseCompactNumber(followingMatch?.[1]),
-  }
-
-  if (!stats.posts && !stats.followers && !stats.following) {
-    throw new Error(`Unable to parse X stats for ${handle}`)
+    name: profile.name || handle,
+    posts: profile.tweet_count || 0,
+    followers: profile.followers_count || 0,
+    following: profile.following_count || 0,
   }
 
   setCacheEntry(cacheKey, stats)
