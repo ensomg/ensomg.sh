@@ -515,49 +515,142 @@ function SpotifyPlayer({ spotify, isSunMode }) {
   )
 }
 
-function ActivityLine({ presence, linkClass, isSunMode }) {
-  const [isSpotifyHovered, setIsSpotifyHovered] = useState(false)
-  const [spotifyPlayerHeight, setSpotifyPlayerHeight] = useState(0)
-  const spotifyOpenTimeoutRef = useRef(null)
-  const spotifyCloseTimeoutRef = useRef(null)
-  const spotifyPlayerInnerRef = useRef(null)
-  const spotifyRevealMotion =
-    'duration-[900ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none'
-  const strongTextClass = isSunMode
-    ? 'text-slate-50'
-    : 'text-zinc-900 dark:text-white'
-  const accentIconClass = isSunMode ? 'text-sky-300' : ''
+function DiscordRpcCard({ activity, isSunMode }) {
+  const start = activity?.timestamps?.start ?? 0
+  const [now, setNow] = useState(Date.now())
 
-  const clearSpotifyTimers = () => {
-    clearTimeout(spotifyOpenTimeoutRef.current)
-    clearTimeout(spotifyCloseTimeoutRef.current)
+  useEffect(() => {
+    if (!start) return undefined
+    const intervalId = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(intervalId)
+  }, [start])
+
+  const elapsed = start ? Math.max(0, now - start) : 0
+  const dividerClass = isSunMode ? 'border-sky-400/12' : 'border-zinc-200 dark:border-zinc-800'
+  const strongTextClass = isSunMode ? 'text-slate-50' : 'text-zinc-900 dark:text-white'
+  const subtleTextClass = isSunMode ? 'text-slate-400' : 'text-zinc-500 dark:text-zinc-500'
+
+  const formatRpcTime = (milliseconds) => {
+    const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000))
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+    const seconds = String(totalSeconds % 60).padStart(2, '0')
+    return hours > 0 ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`
   }
 
-  const handleSpotifyMouseEnter = () => {
-    clearTimeout(spotifyCloseTimeoutRef.current)
-    spotifyOpenTimeoutRef.current = setTimeout(() => {
-      setIsSpotifyHovered(true)
+  const getAssetUrl = (appId, assetId) => {
+    if (!assetId) return null
+    if (assetId.startsWith('mp:external/')) {
+      return `https://media.discordapp.net/external/${assetId.replace('mp:external/', '')}`
+    }
+    return `https://cdn.discordapp.com/app-assets/${appId}/${assetId}.png`
+  }
+
+  const largeImage = getAssetUrl(activity.application_id, activity.assets?.large_image)
+  const smallImage = getAssetUrl(activity.application_id, activity.assets?.small_image)
+
+  return (
+    <div className={joinClasses('border-t pt-3', dividerClass)}>
+      <div className="flex items-center gap-3">
+        {largeImage || smallImage ? (
+          <div className="relative size-11 shrink-0">
+            <img
+              src={largeImage || smallImage}
+              alt={activity.assets?.large_text || activity.name}
+              className="size-11 rounded-[10px] object-cover"
+            />
+            {largeImage && smallImage && (
+              <img
+                src={smallImage}
+                alt={activity.assets?.small_text || ''}
+                className={joinClasses(
+                  'absolute -bottom-1 -right-1 size-[20px] rounded-full ring-[2.5px] object-cover',
+                  isSunMode ? 'ring-[rgba(9,13,28)]' : 'ring-zinc-100 dark:ring-zinc-900',
+                )}
+              />
+            )}
+          </div>
+        ) : (
+          <div
+            className={joinClasses(
+              'flex size-11 shrink-0 items-center justify-center rounded-[10px]',
+              isSunMode ? 'bg-sky-500/10' : 'bg-zinc-200/50 dark:bg-zinc-800/50',
+            )}
+          >
+            <DiscordIcon
+              className={joinClasses(
+                'size-5',
+                isSunMode ? 'text-sky-300' : 'text-zinc-500 dark:text-zinc-400',
+              )}
+            />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className={joinClasses('truncate font-serif italic text-[15px]', strongTextClass)}>
+            {formatPresenceText(activity.name)}
+          </p>
+          {activity.details && (
+            <p className={joinClasses('truncate text-[12px] leading-tight', subtleTextClass)}>
+              {formatPresenceText(activity.details)}
+            </p>
+          )}
+          {activity.state && (
+            <p className={joinClasses('truncate text-[12px] leading-tight', subtleTextClass)}>
+              {formatPresenceText(activity.state)}
+            </p>
+          )}
+        </div>
+      </div>
+      {start > 0 && (
+        <div className="mt-2.5">
+          <div className={joinClasses('flex items-center text-[11px]', subtleTextClass)}>
+            <span>{formatRpcTime(elapsed)} elapsed</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ActivityLine({ presence, linkClass, isSunMode }) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [playerHeight, setPlayerHeight] = useState(0)
+  const openTimeoutRef = useRef(null)
+  const closeTimeoutRef = useRef(null)
+  const playerInnerRef = useRef(null)
+  const revealMotion =
+    'duration-[900ms] ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none'
+  const strongTextClass = isSunMode ? 'text-slate-50' : 'text-zinc-900 dark:text-white'
+  const accentIconClass = isSunMode ? 'text-sky-300' : ''
+
+  const clearTimers = () => {
+    clearTimeout(openTimeoutRef.current)
+    clearTimeout(closeTimeoutRef.current)
+  }
+
+  const handleMouseEnter = () => {
+    clearTimeout(closeTimeoutRef.current)
+    openTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true)
     }, 120)
   }
 
-  const handleSpotifyMouseLeave = () => {
-    clearTimeout(spotifyOpenTimeoutRef.current)
-    spotifyCloseTimeoutRef.current = setTimeout(() => {
-      setIsSpotifyHovered(false)
+  const handleMouseLeave = () => {
+    clearTimeout(openTimeoutRef.current)
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false)
     }, 180)
   }
 
-  useEffect(() => clearSpotifyTimers, [])
+  useEffect(() => clearTimers, [])
 
   useEffect(() => {
-    const element = spotifyPlayerInnerRef.current
+    const element = playerInnerRef.current
 
-    if (!element) {
-      return undefined
-    }
+    if (!element) return undefined
 
     const updateHeight = () => {
-      setSpotifyPlayerHeight(element.scrollHeight)
+      setPlayerHeight(element.scrollHeight)
     }
 
     updateHeight()
@@ -568,7 +661,7 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
     return () => {
       resizeObserver.disconnect()
     }
-  }, [presence?.spotify?.track_id])
+  }, [presence])
 
   if (presence?.listening_to_spotify && presence.spotify?.song) {
     return (
@@ -584,16 +677,16 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
           on{' '}
           <span
             className="inline-flex items-baseline gap-1"
-            onMouseEnter={handleSpotifyMouseEnter}
-            onMouseLeave={handleSpotifyMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <a
               href={site.lanyard.spotifyHref}
               target="_blank"
               rel="noreferrer"
               className={linkClass}
-              onFocus={handleSpotifyMouseEnter}
-              onBlur={handleSpotifyMouseLeave}
+              onFocus={handleMouseEnter}
+              onBlur={handleMouseLeave}
             >
               Spotify
             </a>
@@ -602,21 +695,17 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
           .
         </p>
         <div
-          className={`overflow-hidden transition-[height,opacity] ${spotifyRevealMotion} ${
-            isSpotifyHovered ? 'opacity-100' : 'opacity-0'
+          className={`overflow-hidden transition-[height,opacity] ${revealMotion} ${
+            isHovered ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{
-            height: isSpotifyHovered ? `${spotifyPlayerHeight}px` : '0px',
-          }}
-          onMouseEnter={handleSpotifyMouseEnter}
-          onMouseLeave={handleSpotifyMouseLeave}
+          style={{ height: isHovered ? `${playerHeight}px` : '0px' }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           <div
-            ref={spotifyPlayerInnerRef}
-            className={`transition-[opacity,transform] ${spotifyRevealMotion} ${
-              isSpotifyHovered
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-1 opacity-0'
+            ref={playerInnerRef}
+            className={`transition-[opacity,transform] ${revealMotion} ${
+              isHovered ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0'
             }`}
           >
             <SpotifyPlayer spotify={presence.spotify} isSunMode={isSunMode} />
@@ -630,25 +719,60 @@ function ActivityLine({ presence, linkClass, isSunMode }) {
     (activity) => activity.type !== 4 && activity.name !== 'Spotify',
   )
 
-  if (currentActivity?.type === 0) {
-    return <>I&apos;m currently playing {currentActivity.name}.</>
-  }
+  if (
+    currentActivity &&
+    (currentActivity.type === 0 ||
+      currentActivity.type === 1 ||
+      currentActivity.type === 3 ||
+      currentActivity.details ||
+      currentActivity.assets)
+  ) {
+    const activityMap = { 0: 'playing', 1: 'streaming', 3: 'watching' }
+    const actionText = activityMap[currentActivity.type] ?? 'on'
 
-  if (currentActivity?.type === 1) {
-    return <>I&apos;m currently streaming {currentActivity.name}.</>
-  }
-
-  if (currentActivity?.type === 3) {
-    return <>I&apos;m currently watching {currentActivity.name}.</>
-  }
-
-  if (currentActivity?.details || currentActivity?.state) {
     return (
-      <>
-        I&apos;m currently on {currentActivity.name}
-        {currentActivity.details ? `, ${currentActivity.details}` : ''}
-        {currentActivity.state ? `, ${currentActivity.state}` : ''}.
-      </>
+      <div>
+        <p>
+          I&apos;m currently {actionText}{' '}
+          <span
+            className="inline-flex items-baseline gap-1 cursor-default"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span
+              className={joinClasses(
+                'underline underline-offset-[0.18em] transition-[color,text-decoration-color] duration-500',
+                isSunMode
+                  ? 'text-sky-200 decoration-sky-500/45 hover:text-sky-50 hover:decoration-sky-200'
+                  : 'text-zinc-900 dark:text-white decoration-zinc-400 hover:decoration-zinc-600 dark:decoration-zinc-500/80 dark:hover:decoration-zinc-400'
+              )}
+              onFocus={handleMouseEnter}
+              onBlur={handleMouseLeave}
+              tabIndex={0}
+            >
+              {currentActivity.name}
+            </span>
+          </span>
+          .
+        </p>
+        <div
+          className={`overflow-hidden transition-[height,opacity] ${revealMotion} ${
+            isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ height: isHovered ? `${playerHeight}px` : '0px' }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div
+            ref={playerInnerRef}
+            className={`transition-[opacity,transform] ${revealMotion} ${
+              isHovered ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0'
+            }`}
+          >
+            <DiscordRpcCard activity={currentActivity} isSunMode={isSunMode} />
+          </div>
+        </div>
+      </div>
     )
   }
 
