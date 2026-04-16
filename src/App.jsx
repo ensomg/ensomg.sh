@@ -1984,30 +1984,11 @@ function App() {
                       : 'translate-y-1 opacity-0'
                   }`}
                 >
-                  {site.posts.map((post) => (
-                    <li key={post.title} className="py-1">
-                      <a
-                        href={post.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group -mx-2 block rounded-lg"
-                      >
-                        <div
-                          className={joinClasses(
-                            'rounded-md px-2 py-1.5 transition-colors',
-                            softMotion,
-                            isSunMode
-                              ? 'group-hover:bg-sky-400/10'
-                              : 'group-hover:bg-zinc-200/60 dark:group-hover:bg-zinc-800',
-                          )}
-                        >
-                          <p className={joinClasses('font-serif italic text-base', strongTextClass)}>
-                            {post.title}
-                          </p>
-                        </div>
-                      </a>
-                    </li>
-                  ))}
+                  <li className="py-3 text-center">
+                    <p className={joinClasses('font-serif italic text-sm', subtleTextClass)}>
+                      Currently nothing.
+                    </p>
+                  </li>
                 </ul>
               </div>
             </div>
