@@ -2109,23 +2109,40 @@ function App() {
         </li>
       </ul>
       </main>
-      <button
-        type="button"
-        aria-pressed={isSunMode}
-        title={isSunMode ? 'Disable sun mode' : 'Enable sun mode'}
-        onClick={() => setIsSunMode((value) => !value)}
-        className={joinClasses(
-          'fixed right-5 bottom-5 z-20 flex size-10 items-center justify-center rounded-full border transition-[background-color,color,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/40',
-          isSunMode
-            ? 'border-sky-400/20 bg-[rgba(9,13,28,0.92)] text-amber-200 shadow-[0_0_0_1px_rgba(96,165,250,0.08),0_12px_30px_rgba(0,0,0,0.35),0_0_34px_rgba(37,99,235,0.18)]'
-            : 'border-zinc-200 bg-white/90 text-zinc-700 shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-300 dark:shadow-[0_8px_20px_rgba(0,0,0,0.24)]',
-        )}
-      >
-        <span className="sr-only">
-          {isSunMode ? 'Disable sun mode' : 'Enable sun mode'}
-        </span>
-        <SunIcon />
-      </button>
+      <div className="fixed right-5 bottom-5 z-20 flex gap-3">
+        <a
+          href={site.github.href}
+          target="_blank"
+          rel="noreferrer"
+          title="GitHub Profile"
+          className={joinClasses(
+            'flex size-10 items-center justify-center rounded-full border transition-[background-color,color,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/40',
+            isSunMode
+              ? 'border-sky-400/20 bg-[rgba(9,13,28,0.92)] text-slate-300 hover:text-sky-200 shadow-[0_0_0_1px_rgba(96,165,250,0.08),0_12px_30px_rgba(0,0,0,0.35),0_0_34px_rgba(37,99,235,0.18)]'
+              : 'border-zinc-200 bg-white/90 text-zinc-600 hover:text-zinc-900 shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-400 dark:hover:text-zinc-200 dark:shadow-[0_8px_20px_rgba(0,0,0,0.24)]',
+          )}
+        >
+          <span className="sr-only">GitHub Profile</span>
+          <GitHubIcon className="size-[18px]" />
+        </a>
+        <button
+          type="button"
+          aria-pressed={isSunMode}
+          title={isSunMode ? 'Disable sun mode' : 'Enable sun mode'}
+          onClick={() => setIsSunMode((value) => !value)}
+          className={joinClasses(
+            'flex size-10 items-center justify-center rounded-full border transition-[background-color,color,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/40',
+            isSunMode
+              ? 'border-sky-400/20 bg-[rgba(9,13,28,0.92)] text-amber-200 shadow-[0_0_0_1px_rgba(96,165,250,0.08),0_12px_30px_rgba(0,0,0,0.35),0_0_34px_rgba(37,99,235,0.18)]'
+              : 'border-zinc-200 bg-white/90 text-zinc-700 shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-300 dark:shadow-[0_8px_20px_rgba(0,0,0,0.24)]',
+          )}
+        >
+          <span className="sr-only">
+            {isSunMode ? 'Disable sun mode' : 'Enable sun mode'}
+          </span>
+          <SunIcon />
+        </button>
+      </div>
 
       <div
         className={joinClasses(
