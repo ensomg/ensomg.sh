@@ -1,16 +1,52 @@
-# React + Vite
+<div align="center">
+  <img width="100%" src="https://readme-typing-svg.herokuapp.com?font=Inter&pause=1000&color=346679&center=true&vCenter=true&repeat=false&width=435&height=30&lines=ens.sh" alt="ens.sh" />
+</div>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center" width="100%">
+  
+### Minimalist Personal Website
 
-Currently, two official plugins are available:
+<samp>
+  A minimal, fast, and responsive personal website built with React, Vite, and Tailwind CSS.
+  Designed with a focus on simplicity, clean typography, and modern aesthetics.
+</samp>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+<br />
+<br />
 
-## React Compiler
+<div align="center">
+  <img width="50%" src="https://readme-typing-svg.herokuapp.com?font=Inter&pause=1000&color=ffffff&center=true&vCenter=true&repeat=false&width=435&height=30&lines=Tech+Stack" alt="Tech Stack" />
+  <br />
+  <img width="50%" src="https://skillicons.dev/icons?i=js,html,css,react,tailwind,vite,npm&theme=dark" alt="Skills">
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+<br />
+<br />
 
-## Expanding the ESLint configuration
+<div align="center">
+  <img width="50%" src="https://readme-typing-svg.herokuapp.com?font=Inter&pause=1000&color=ffffff&center=true&vCenter=true&repeat=false&width=435&height=30&lines=Getting+Started" alt="Getting Started" />
+</div>
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+<br />
+
+<samp>
+<div align="left" style="display:inline-block;">
+1. Install dependencies:<br/>
+> npm install<br/><br/>
+2. Start the development server:<br/>
+> npm run dev<br/><br/>
+3. Build for production:<br/>
+> npm run build
+</div>
+</samp>
+
+<br />
+<br />
+
+<div align="center">
+  <a href="https://github.com/ensomg/ensomg.sh">
+    <img src="https://img.shields.io/badge/GitHub-000000.svg?&style=flat&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+</div>
+
+</div>
