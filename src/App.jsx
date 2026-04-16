@@ -1683,7 +1683,81 @@ function SunIcon({ className = '' }) {
   )
 }
 
+function CustomCursor() {
+  const cursorRef = useRef(null)
+
+  useEffect(() => {
+    // Only initialize custom cursor on devices that have a real pointer (non-touch)
+    if (window.matchMedia('(pointer: coarse)').matches) return undefined
+
+    document.documentElement.classList.add('hide-cursor')
+
+    let mouseX = 0
+    let mouseY = 0
+    let cursorX = 0
+    let cursorY = 0
+
+    const onMouseMove = (e) => {
+      mouseX = e.clientX
+      mouseY = e.clientY
+    }
+    window.addEventListener('mousemove', onMouseMove)
+
+    let animationFrameId
+    const animate = () => {
+      cursorX += (mouseX - cursorX) * 0.15
+      cursorY += (mouseY - cursorY) * 0.15
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`
+      }
+      animationFrameId = requestAnimationFrame(animate)
+    }
+    animate()
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      cancelAnimationFrame(animationFrameId)
+      document.documentElement.classList.remove('hide-cursor')
+    }
+  }, [])
+
+  return (
+    <div
+      ref={cursorRef}
+      className="fixed top-0 left-0 z-[10000] size-4 rounded-full mix-blend-difference bg-white pointer-events-none hidden sm:block will-change-transform"
+    />
+  )
+}
+
+function useVersionCheck() {
+  useEffect(() => {
+    let currentVersion = null
+
+    // Check version every 60 seconds
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await fetch(`/version.json?t=${Date.now()}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (currentVersion && currentVersion !== data.version) {
+             window.location.reload(true)
+          }
+          currentVersion = data.version
+        }
+      } catch (err) {
+        // ignore errors
+      }
+    }, 60000)
+
+    // Initial fetch to set the baseline purely in the background 
+    fetch(`/version.json?t=${Date.now()}`).then(r => r.json()).then(d => { currentVersion = d.version }).catch(() => {})
+
+    return () => clearInterval(intervalId)
+  }, [])
+}
+
 function App() {
+  useVersionCheck()
   const [isSunMode, setIsSunMode] = useState(() => {
     if (typeof window === 'undefined') {
       return false
@@ -2277,6 +2351,8 @@ function App() {
           ens.sh
         </span>
       </div>
+
+      <CustomCursor />
     </>
   )
 }

@@ -260,3 +260,9 @@ select {
 summary::-webkit-details-marker {
   display: none;
 }
+
+@media (pointer: fine) {
+  html.hide-cursor * {
+    cursor: none !important;
+  }
+}
